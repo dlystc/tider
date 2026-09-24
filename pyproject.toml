@@ -1,0 +1,23 @@
+[project]
+name = "tider"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "UnknownMp", email = "unknownmp@163.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "aiofiles>=25.1.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.13.5",
+    "pyyaml>=6.0.3",
+    "readchar>=4.2.2",
+]
+
+[project.scripts]
+tider = "tider:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
