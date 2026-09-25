@@ -13,7 +13,7 @@ def _read(path: pathlib.Path):
 @asyncify
 def _write(path: pathlib.Path, data: Any):
     with open(path, mode = 'w') as f:
-        return yaml.safe_dump(data, f)
+        return yaml.safe_dump(data, f, allow_unicode=True)
 
 
 async def aread(path: pathlib.Path) -> Any:

@@ -180,3 +180,15 @@ class SentenceQueueRepo:
             ).model_dump())
 
         self.chunk_updated = set()
+
+    async def force_flush(self):
+        await self.chunk_load_all()
+
+        stcs = await self.split_by_chunk()
+
+        for cid in self.chunk_loaded:
+            await ayml.awrite(self.path / f'{cid}.yaml', Chunk(
+                chunk_id = cid,
+                updated_at = datetime.now(timezone.utc),
+                sentences = list(stcs.get(cid, set()))
+            ).model_dump())
