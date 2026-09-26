@@ -21,7 +21,7 @@ class Sentence(BaseModel):
     created_at: datetime
 
     @field_serializer('uuid')
-    def serialize_uuid(self, uid: uuid.UUID):
+    def serialize_uuid(self, uid: uuid.UUID): # pyright: ignore[reportInvalidTypeForm] TODO: fix it
         return str(uid)
 
     def __hash__(self):
@@ -159,11 +159,14 @@ class SentenceQueueRepo:
 
         self.chunk_updated.add(stc.uuid.int % self.ROUND_COUNT)
 
-    async def remove(self, src: Sentence | uuid.UUID):
-        if isinstance(src, Sentence):
-            src = src.uuid
+    async def remove(self, stc: Sentence | uuid.UUID):
+        if isinstance(stc, Sentence):
+            stc = stc.uuid
 
-        uint = src.int
+        if stc.int % self.ROUND_COUNT not in self.chunk_loaded:
+            await self.chunk_load(stc.int % self.ROUND_COUNT)
+
+        uint = stc.int
 
         if uint in self.map:
             del self.map[uint]

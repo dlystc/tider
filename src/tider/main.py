@@ -90,7 +90,7 @@ async def amain():
 
             try:
                 go = True
-                while go and (stc := wait_check.pop()):
+                while go and wait_check and (stc := wait_check.pop()):
                     ccnt += 1
 
                     await acli.aprint(
@@ -205,6 +205,33 @@ async def amain():
                         '',
                         sep = '\n'
                     )
+        case "move":
+            target = sys.argv[2]
+            ids = [uuid.UUID(i) for i in sys.argv[3:]]
+
+            hallstc = set(map(h_to_s, await hitokoto_upstream.get_all_stcs()))
+
+            hstcmap: dict[int, sentence_queue.Sentence] = {}
+
+            for stc in hallstc:
+                hstcmap[stc.uuid.int] = stc
+
+            match target:
+                case 'a':
+                    for i in ids:
+                        await a_repo.set(hstcmap[i.int])
+                        await r_repo.remove(hstcmap[i.int])
+                case 'r':
+                    for i in ids:
+                        await r_repo.set(hstcmap[i.int])
+                        await a_repo.remove(hstcmap[i.int])
+
+            try:
+                await a_repo.flush()
+            except Exception as e: print(e)
+            try:
+                await r_repo.flush()
+            except Exception as e: print(e)
 
 
         case 'dedup':
@@ -316,3 +343,9 @@ async def amain():
                 try:
                     await d_repo.flush()
                 except Exception as e: print(e)
+        case 'count':
+            aallstc = await a_repo.get_all_stc()
+            rallstc = await r_repo.get_all_stc()
+
+            print(f'a: {len(aallstc)}')
+            print(f'r: {len(rallstc)}')
